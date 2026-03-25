@@ -1,8 +1,7 @@
 // screens/debug/debug_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../services/hotel_service.dart';
+import 'services/hotel_service.dart';
 
 class DebugScreen extends StatelessWidget {
   @override
@@ -92,11 +91,15 @@ class DebugScreen extends StatelessWidget {
               SizedBox(height: 16),
 
               ElevatedButton(
-                onPressed: () async {
-                  final exported = await service.exportAllData();
-                  print('Exported Data: $exported');
+                onPressed: () {
+                  final summary =
+                      'Rooms: ${service.rooms.length} | '
+                      'Guests: ${service.guests.length} | '
+                      'Reservations: ${service.reservations.length} | '
+                      'Revenue: ${service.calculateExpectedRevenue().toStringAsFixed(0)} Dollar';
+                  debugPrint('Export: $summary');
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Data exported to console')),
+                    SnackBar(content: Text(summary)),
                   );
                 },
                 child: Text('Export to Console'),

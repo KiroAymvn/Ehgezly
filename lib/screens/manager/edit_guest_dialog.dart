@@ -202,11 +202,11 @@ class _EditGuestDialogState extends State<EditGuestDialog> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       context.read<GuestProvider>().updateGuest(
-        widget.guest.id,
-        _nameController.text.trim(),
-        _phoneController.text.trim(),
+        guestId: widget.guest.id,
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
         email: _emailController.text.trim(),
-        birthday: _birthday,  // Pass birthday
+        birthday: _birthday,
       );
       Navigator.pop(context, true);
     }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -232,17 +231,19 @@ class _AllGuestsScreenState extends State<AllGuestsScreen> {
   }
 
   void _showSearchDialog(BuildContext context) {
+    final searchController = TextEditingController(text: _searchQuery);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Search Guests'),
         content: TextField(
+          controller: searchController,
           autofocus: true,
           decoration: InputDecoration(
             hintText: 'Search by name, phone, or email...',
             border: OutlineInputBorder(),
           ),
-          onChanged: (value) {
+          onSubmitted: (value) {
             setState(() {
               _searchQuery = value;
             });
@@ -258,6 +259,15 @@ class _AllGuestsScreenState extends State<AllGuestsScreen> {
               Navigator.pop(context);
             },
             child: Text('Clear'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _searchQuery = searchController.text;
+              });
+              Navigator.pop(context);
+            },
+            child: Text('Search'),
           ),
         ],
       ),

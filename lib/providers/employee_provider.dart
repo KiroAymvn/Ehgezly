@@ -1,26 +1,21 @@
 // providers/employee_provider.dart
-import 'package:flutter/material.dart';
+//
+// State management for Employees. Delegates all data operations to HotelService
+// and notifies listeners so the UI rebuilds automatically.
+
+import 'package:flutter/foundation.dart';
 import '../models/employee.dart';
 import '../services/hotel_service.dart';
 
-class EmployeeProvider extends ChangeNotifier {
-  final HotelService _hotelService = HotelService();
-  List<Employee> _employees = [];
+class EmployeeProvider with ChangeNotifier {
+  final HotelService _service = HotelService();
 
-  List<Employee> get allEmployees => _employees;
+  // EmployeeProvider reads directly from the service list (no local copy needed)
+  List<Employee> get allEmployees => _service.employees;
 
-  EmployeeProvider() {
-    _loadEmployees();
-  }
-
-  Future<void> _loadEmployees() async {
-    await _hotelService.initialize();
-    _employees = _hotelService.employees;
-    notifyListeners();
-  }
-
+  /// Call once at startup to ensure data is initialized.
   Future<void> loadEmployees() async {
-    await _loadEmployees();
+    notifyListeners();
   }
 
   Future<void> addEmployee({
@@ -29,21 +24,11 @@ class EmployeeProvider extends ChangeNotifier {
     required String phone,
     required String department,
   }) async {
-    try {
-      await _hotelService.addEmployee(
-        firstName: firstName,
-        secondName: secondName,
-        phone: phone,
-        department: department,
-      );
-
-      // Reload employees from service
-      _employees = _hotelService.employees;
-      notifyListeners();
-    } catch (e) {
-      print('Error adding employee: $e');
-      rethrow;
-    }
+    await _service.addEmployee(
+      firstName: firstName, secondName: secondName,
+      phone: phone, department: department,
+    );
+    notifyListeners();
   }
 
   Future<void> updateEmployee({
@@ -53,54 +38,20 @@ class EmployeeProvider extends ChangeNotifier {
     required String phone,
     required String department,
   }) async {
-    try {
-      await _hotelService.updateEmployee(
-        employeeId: employeeId,
-        firstName: firstName,
-        secondName: secondName,
-        phone: phone,
-        department: department,
-      );
-
-      // Reload employees from service
-      _employees = _hotelService.employees;
-      notifyListeners();
-    } catch (e) {
-      print('Error updating employee: $e');
-      rethrow;
-    }
+    await _service.updateEmployee(
+      employeeId: employeeId, firstName: firstName, secondName: secondName,
+      phone: phone, department: department,
+    );
+    notifyListeners();
   }
 
   Future<void> deleteEmployee(int employeeId) async {
-    try {
-      await _hotelService.deleteEmployee(employeeId);
-
-      // Reload employees from service
-      _employees = _hotelService.employees;
-      notifyListeners();
-    } catch (e) {
-      print('Error deleting employee: $e');
-      rethrow;
-    }
-  }
-
-  List<Employee> getEmployeesByDepartment(String department) {
-    return _hotelService.getEmployeesByDepartment(department);
-  }
-
-  List<String> getUniqueDepartments() {
-    return _hotelService.getUniqueDepartments();
-  }
-
-  Employee? getEmployeeById(int id) {
-    return _hotelService.getEmployeeById(id);
-  }
-
-  Map<String, dynamic> getEmployeeStatistics() {
-    return _hotelService.getEmployeeStatistics();
-  }
-
-  void notify() {
+    await _service.deleteEmployee(employeeId);
     notifyListeners();
   }
+
+  List<Employee> getByDepartment(String department) =>
+      _service.getEmployeesByDepartment(department);
+
+  Employee? getById(int id) => _service.getEmployeeById(id);
 }

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';  // Add this import
 import '../../services/hotel_service.dart';
 
 class AddGuestSimpleDialog extends StatefulWidget {
+  const AddGuestSimpleDialog({super.key});
+
   @override
   State<AddGuestSimpleDialog> createState() => _AddGuestDialogState();
 }

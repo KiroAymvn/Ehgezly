@@ -59,9 +59,9 @@ class Room {
       number: json['number'],
       viewType: json['viewType'] ?? 'Regular',
       capacity: json['capacity'] ?? 'Single',
-      pricePerNight: json['pricePerNight'].toDouble(),
-      isAvailable: json['isAvailable'],
-      imageUrl: json['imageUrl'],
+      pricePerNight: (json['pricePerNight'] as num).toDouble(),
+      isAvailable: json['isAvailable'] ?? true,
+      imageUrl: json['imageUrl'] ?? 'assets/room.jpg',
       amenities: List<String>.from(json['amenities'] ?? []),
     );
   }

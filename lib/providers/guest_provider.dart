@@ -1,5 +1,9 @@
 // providers/guest_provider.dart
-import 'package:flutter/cupertino.dart';
+//
+// State management for Guests. Delegates all data operations to HotelService
+// and notifies listeners so the UI rebuilds automatically.
+
+import 'package:flutter/foundation.dart';
 import '../models/guest.dart';
 import '../services/hotel_service.dart';
 
@@ -8,25 +12,27 @@ class GuestProvider with ChangeNotifier {
 
   List<Guest> get allGuests => _service.guests;
 
-  Future<void> addGuest(String name, String phone,
-      {String email = '', DateTime? birthday}) async {  // Add birthday parameter
+  Future<void> addGuest({
+    required String name,
+    required String phone,
+    String email = '',
+    DateTime? birthday,
+  }) async {
     await _service.addGuest(
-      name: name,
-      phone: phone,
-      email: email,
-      birthday: birthday,  // Pass birthday
+      name: name, phone: phone, email: email, birthday: birthday,
     );
     notifyListeners();
   }
 
-  Future<void> updateGuest(int guestId, String name, String phone,
-      {String email = '', DateTime? birthday}) async {  // Add birthday parameter
+  Future<void> updateGuest({
+    required int guestId,
+    required String name,
+    required String phone,
+    String email = '',
+    DateTime? birthday,
+  }) async {
     await _service.updateGuest(
-      guestId: guestId,
-      name: name,
-      phone: phone,
-      email: email,
-      birthday: birthday,  // Pass birthday
+      guestId: guestId, name: name, phone: phone, email: email, birthday: birthday,
     );
     notifyListeners();
   }
