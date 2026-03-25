@@ -9,6 +9,7 @@ import 'add_guest_dialog.dart';
 import 'date_range_dialog.dart';
 
 class RoomDetailsSheet extends StatefulWidget {
+  
   final Room room;
   final Map<String, dynamic>? currentFilters;
   final Function(Map<String, dynamic>)? onFiltersChanged;
