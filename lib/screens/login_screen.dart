@@ -125,7 +125,7 @@ class LoginScreen extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: [ 
                     Text(
                       title,
                       style: TextStyle(

@@ -27,11 +27,12 @@ class RoomGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     final upcomingReservations = service.getUpcomingReservationsForRoom(room.id);
     final hasUpcomingReservations = upcomingReservations.isNotEmpty;
 
     return Card(
-      
+
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
