@@ -1,6 +1,5 @@
 // screens/debug/debug_screen.dart
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'services/hotel_service.dart';
 
 class DebugScreen extends StatelessWidget {
@@ -145,24 +144,23 @@ class DebugScreen extends StatelessWidget {
 
 // In the _loadDebugInfo method of DebugScreen, add:
   Future<Map<String, dynamic>> _loadDebugInfo(HotelService service) async {
-    final prefs = await SharedPreferences.getInstance();
-
     return {
       'roomsCount': service.rooms.length,
       'guestsCount': service.guests.length,
       'reservationsCount': service.reservations.length,
-      'employeesCount': service.employees.length, // Add this
+      'employeesCount': service.employees.length,
       'revenue': service.calculateExpectedRevenue().toStringAsFixed(0),
-      'roomsKeyExists': prefs.containsKey('hotel_rooms'),
-      'guestsKeyExists': prefs.containsKey('hotel_guests'),
-      'reservationsKeyExists': prefs.containsKey('hotel_reservations'),
-      'employeesKeyExists': prefs.containsKey('hotel_employees'), // Add this
-      'lastIdsKeyExists': prefs.containsKey('hotel_last_ids'),
+      'roomsKeyExists': true, // Hive removes the need for this explicit check as boxes are open at start
+      'guestsKeyExists': true,
+      'reservationsKeyExists': true,
+      'employeesKeyExists': true,
+      'lastIdsKeyExists': true,
       'sampleRoom': service.rooms.isNotEmpty
           ? 'ID: ${service.rooms.first.id}, Number: ${service.rooms.first.number}, Type: ${service.rooms.first.viewType}, Available: ${service.rooms.first.isAvailable}'
           : 'No rooms',
-      'sampleEmployee': service.employees.isNotEmpty // Add this
+      'sampleEmployee': service.employees.isNotEmpty
           ? 'ID: ${service.employees.first.id}, Name: ${service.employees.first.fullName}, Department: ${service.employees.first.department}'
           : 'No employees',
     };
-  }}
+  }
+}

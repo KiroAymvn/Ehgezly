@@ -1,9 +1,10 @@
 // screens/manager/all_employees_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../models/employee.dart';
-import '../../providers/employee_provider.dart';
+import '../../features/employees/cubit/employee_cubit.dart';
+import '../../features/employees/cubit/employee_state.dart';
 import 'add_employee_dialog.dart';
 import 'edit_employee_dialog.dart';
 
@@ -30,7 +31,7 @@ class _AllEmployeesScreenState extends State<AllEmployeesScreen> {
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
-              context.read<EmployeeProvider>().loadEmployees();
+              context.read<EmployeeCubit>().loadEmployees();
             },
             tooltip: 'Refresh',
           ),
@@ -41,9 +42,10 @@ class _AllEmployeesScreenState extends State<AllEmployeesScreen> {
         child: Icon(Icons.add),
         backgroundColor: Colors.blue,
       ),
-      body: Consumer<EmployeeProvider>(
-        builder: (context, employeeProvider, child) {
-          final employees = employeeProvider.allEmployees;
+      body: Builder(
+        builder: (context) {
+          final state = context.watch<EmployeeCubit>().state;
+          final employees = state is EmployeeLoaded ? state.employees : <Employee>[];
           final filteredEmployees = _selectedFilter == 'All'
               ? employees
               : employees.where((e) => e.department == _selectedFilter).toList();
@@ -368,7 +370,7 @@ class _AllEmployeesScreenState extends State<AllEmployeesScreen> {
           TextButton(
             onPressed: () async {
               try {
-                await context.read<EmployeeProvider>().deleteEmployee(employee.id);
+                await context.read<EmployeeCubit>().deleteEmployee(employee.id);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

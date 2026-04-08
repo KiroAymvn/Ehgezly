@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/guest.dart';
 import '../../models/reservation.dart';
 import '../../models/room.dart';
-import '../../providers/guest_provider.dart';
-import '../../providers/reservation_provider.dart';
+import '../../features/guests/cubit/guest_cubit.dart';
+import '../../features/reservations/cubit/reservation_cubit.dart';
 import '../../services/hotel_service.dart';
 // Update DateRangeDialog to check availability
 class DateRangeDialog extends StatefulWidget {
@@ -341,3 +341,4 @@ class _DateRangeDialogState extends State<DateRangeDialog> {
     if (picked != null) setState(() => _checkOut = picked);
   }
 }
+

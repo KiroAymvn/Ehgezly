@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/guest.dart';
-import '../../providers/guest_provider.dart';
+import '../../features/guests/cubit/guest_cubit.dart';
+import '../../features/guests/cubit/guest_state.dart';
 import 'add_guest_simple_dialog.dart';
 import 'edit_guest_dialog.dart';
 
@@ -23,7 +24,8 @@ class _AllGuestsScreenState extends State<AllGuestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final guests = context.watch<GuestProvider>().allGuests;
+    final state = context.watch<GuestCubit>().state;
+    final guests = state is GuestLoaded ? state.guests : <Guest>[];
 
     // Filter guests based on search query
     _filteredGuests = _searchQuery.isEmpty
@@ -420,7 +422,7 @@ class _AllGuestsScreenState extends State<AllGuestsScreen> {
     );
 
     if (confirmed == true) {
-      context.read<GuestProvider>().deleteGuest(guest.id);
+      context.read<GuestCubit>().deleteGuest(guest.id);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Guest deleted successfully'),

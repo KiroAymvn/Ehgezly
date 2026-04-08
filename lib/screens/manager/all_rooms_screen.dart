@@ -4,10 +4,11 @@
 // Add/Edit/Delete dialogs are in features/manager/rooms/dialogs/.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/utils/status_helpers.dart';
 import '../../models/room.dart';
-import '../../providers/room_provider.dart';
+import '../../features/rooms/cubit/room_cubit.dart';
+import '../../features/rooms/cubit/room_state.dart';
 import '../../features/manager/rooms/dialogs/add_room_dialog.dart';
 import '../../features/manager/rooms/dialogs/edit_room_dialog.dart';
 
@@ -16,7 +17,8 @@ class AllRoomsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rooms = context.watch<RoomProvider>().allRooms;
+    final state = context.watch<RoomCubit>().state;
+    final rooms = state is RoomLoaded ? state.rooms : <Room>[];
     final availableCount = rooms.where((r) => r.isAvailable).length;
 
     return Scaffold(
@@ -226,7 +228,7 @@ class _AvailabilitySwitch extends StatelessWidget {
         value: room.isAvailable,
         activeColor: Colors.green,
         onChanged: (val) =>
-            context.read<RoomProvider>().toggleAvailability(room.id, val),
+            context.read<RoomCubit>().toggleAvailability(room.id, val),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       const SizedBox(height: 2),
@@ -297,7 +299,7 @@ class _RoomMenu extends StatelessWidget {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
               try {
-                await context.read<RoomProvider>().deleteRoom(room.id);
+                await context.read<RoomCubit>().deleteRoom(room.id);
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text('Room ${room.number} deleted'),

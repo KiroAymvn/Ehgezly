@@ -1,10 +1,30 @@
 // models/reservation.dart
-class Reservation {
+//
+// Reservation entity with Hive TypeAdapter support.
+// TypeId = 2 — must be unique across all Hive models.
+
+import 'package:hive/hive.dart';
+
+part 'reservation.g.dart';
+
+@HiveType(typeId: 2)
+class Reservation extends HiveObject {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final int guestId;
+
+  @HiveField(2)
   final int roomId;
+
+  @HiveField(3)
   final DateTime checkIn;
+
+  @HiveField(4)
   final DateTime checkOut;
+
+  @HiveField(5)
   final String status; // Confirmed, Checked-in, Checked-out, Cancelled
 
   Reservation({
@@ -16,7 +36,7 @@ class Reservation {
     this.status = 'Confirmed',
   });
 
-  // Convert to JSON
+  // Converts this reservation to a JSON-compatible map
   Map<String, dynamic> toJson() => {
     'id': id,
     'guestId': guestId,
@@ -26,7 +46,7 @@ class Reservation {
     'status': status,
   };
 
-  // Create from JSON
+  // Creates a Reservation from a JSON map
   factory Reservation.fromJson(Map<String, dynamic> json) {
     return Reservation(
       id: json['id'],

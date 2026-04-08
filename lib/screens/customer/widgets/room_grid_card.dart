@@ -6,14 +6,15 @@ class RoomGridCard extends StatelessWidget {
   final Room room;
   final VoidCallback onTap;
   final VoidCallback onBookNow;
-  final HotelService service;
+  // We'll use the singleton directly to avoid any potential null injection issues
+  final HotelService service = HotelService();
 
-  const RoomGridCard({
+  RoomGridCard({
     Key? key,
     required this.room,
     required this.onTap,
     required this.onBookNow,
-    required this.service,
+    HotelService? service, // Keep for compatibility but prioritize singleton
   }) : super(key: key);
 
   Color _getRoomTypeColor(String viewType) {
@@ -27,7 +28,7 @@ class RoomGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+    // Ensuring we have the upcoming reservations safely
     final upcomingReservations = service.getUpcomingReservationsForRoom(room.id);
     final hasUpcomingReservations = upcomingReservations.isNotEmpty;
 

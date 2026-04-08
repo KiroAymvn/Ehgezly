@@ -6,14 +6,15 @@
 // needed since they share local state.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/utils/date_formatter.dart';
 import '../../core/utils/status_helpers.dart';
 import '../../models/guest.dart';
 import '../../models/reservation.dart';
 import '../../models/room.dart';
-import '../../providers/reservation_provider.dart';
+import '../../features/reservations/cubit/reservation_cubit.dart';
+import '../../features/reservations/cubit/reservation_state.dart';
 import '../../services/hotel_service.dart';
 
 class AllReservationsScreen extends StatefulWidget {
@@ -53,7 +54,8 @@ class _AllReservationsScreenState extends State<AllReservationsScreen> {
   @override
   Widget build(BuildContext context) {
     final service      = HotelService();
-    final reservations = context.watch<ReservationProvider>().allReservations;
+    final state = context.watch<ReservationCubit>().state;
+    final reservations = state is ReservationLoaded ? state.reservations : <Reservation>[];
     final filtered     = _applyFilterAndSort(reservations, service);
 
     return Scaffold(
@@ -252,7 +254,7 @@ class _AllReservationsScreenState extends State<AllReservationsScreen> {
     String selectedStatus = res.status;
     DateTime checkIn  = res.checkIn;
     DateTime checkOut = res.checkOut;
-    final provider = context.read<ReservationProvider>();
+    final provider = context.read<ReservationCubit>();
 
     showDialog(
       context: ctx,
@@ -408,7 +410,7 @@ class _AllReservationsScreenState extends State<AllReservationsScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
-              await context.read<ReservationProvider>().deleteReservation(res.id);
+              await context.read<ReservationCubit>().deleteReservation(res.id);
               Navigator.pop(ctx);
               ScaffoldMessenger.of(ctx).showSnackBar(
                 const SnackBar(content: Text('Reservation deleted'), backgroundColor: Colors.red),

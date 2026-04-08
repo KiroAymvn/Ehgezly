@@ -1,23 +1,23 @@
 // data/local/local_storage_service.dart
 //
-// All SharedPreferences read and write operations live here.
-// Other parts of the app should NOT import shared_preferences directly —
+// All Hive local storage read and write operations live here.
+// Other parts of the app should NOT import Hive directly —
 // they should use this service instead.
 
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 import '../../models/employee.dart';
 import '../../models/guest.dart';
 import '../../models/reservation.dart';
 import '../../models/room.dart';
 
 class LocalStorageService {
-  // ── SharedPreferences Keys ─────────────────────────────────────────────────
-  static const String _roomsKey        = 'hotel_rooms';
-  static const String _guestsKey       = 'hotel_guests';
-  static const String _reservationsKey = 'hotel_reservations';
-  static const String _employeesKey    = 'hotel_employees';
-  static const String _lastIdKey       = 'hotel_last_ids';
+  // ── Hive Box Names ─────────────────────────────────────────────────────────
+  static const String _roomsBoxName        = 'hotel_rooms_box';
+  static const String _guestsBoxName       = 'hotel_guests_box';
+  static const String _reservationsBoxName = 'hotel_reservations_box';
+  static const String _employeesBoxName    = 'hotel_employees_box';
+  static const String _metaBoxName         = 'hotel_meta_box';
+  static const String _lastIdKey           = 'hotel_last_ids';
 
   // ── Save All ───────────────────────────────────────────────────────────────
 
@@ -29,14 +29,26 @@ class LocalStorageService {
     required Map<String, int> lastIds,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await Future.wait([
-        prefs.setString(_lastIdKey,        json.encode(lastIds)),
-        prefs.setString(_roomsKey,         json.encode(rooms.map((r) => r.toJson()).toList())),
-        prefs.setString(_guestsKey,        json.encode(guests.map((g) => g.toJson()).toList())),
-        prefs.setString(_reservationsKey,  json.encode(reservations.map((r) => r.toJson()).toList())),
-        prefs.setString(_employeesKey,     json.encode(employees.map((e) => e.toJson()).toList())),
-      ]);
+      final roomsBox = Hive.box<Room>(_roomsBoxName);
+      await roomsBox.clear();
+      await roomsBox.addAll(rooms);
+
+      final guestsBox = Hive.box<Guest>(_guestsBoxName);
+      await guestsBox.clear();
+      await guestsBox.addAll(guests);
+
+      final resBox = Hive.box<Reservation>(_reservationsBoxName);
+      await resBox.clear();
+      await resBox.addAll(reservations);
+
+      final empBox = Hive.box<Employee>(_employeesBoxName);
+      await empBox.clear();
+      await empBox.addAll(employees);
+
+      final metaBox = Hive.box(_metaBoxName);
+      // Convert map to String, dynamic as Hive prefers
+      final dynamicMeta = lastIds.map((key, value) => MapEntry(key, value as dynamic));
+      await metaBox.put(_lastIdKey, dynamicMeta);
     } catch (e) {
       print('LocalStorageService.saveAll error: $e');
       rethrow;
@@ -47,18 +59,24 @@ class LocalStorageService {
 
   Future<StorageData> loadAll() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final roomsBox = Hive.box<Room>(_roomsBoxName);
+      final guestsBox = Hive.box<Guest>(_guestsBoxName);
+      final resBox = Hive.box<Reservation>(_reservationsBoxName);
+      final empBox = Hive.box<Employee>(_employeesBoxName);
+      final metaBox = Hive.box(_metaBoxName);
 
-      final lastIds = _parseLastIds(prefs.getString(_lastIdKey));
-      final rooms   = _parseList(prefs.getString(_roomsKey),        Room.fromJson);
-      final guests  = _parseList(prefs.getString(_guestsKey),       Guest.fromJson);
-      final res     = _parseList(prefs.getString(_reservationsKey), Reservation.fromJson);
-      final emps    = _parseList(prefs.getString(_employeesKey),    Employee.fromJson);
+      final rawMeta = metaBox.get(_lastIdKey);
+      Map<String, int>? lastIds;
+      if (rawMeta != null && rawMeta is Map) {
+        lastIds = rawMeta.map((k, v) => MapEntry(k.toString(), v as int));
+      }
 
       return StorageData(
-        rooms: rooms, guests: guests,
-        reservations: res, employees: emps,
-        lastIds: lastIds,
+        rooms: roomsBox.values.toList(),
+        guests: guestsBox.values.toList(),
+        reservations: resBox.values.toList(),
+        employees: empBox.values.toList(),
+        lastIds: lastIds ?? {'roomId': 0, 'guestId': 0, 'reservationId': 0, 'employeeId': 0},
       );
     } catch (e) {
       print('LocalStorageService.loadAll error: $e');
@@ -69,37 +87,13 @@ class LocalStorageService {
   // ── Clear All ──────────────────────────────────────────────────────────────
 
   Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
     await Future.wait([
-      prefs.remove(_roomsKey),
-      prefs.remove(_guestsKey),
-      prefs.remove(_reservationsKey),
-      prefs.remove(_employeesKey),
-      prefs.remove(_lastIdKey),
+      Hive.box<Room>(_roomsBoxName).clear(),
+      Hive.box<Guest>(_guestsBoxName).clear(),
+      Hive.box<Reservation>(_reservationsBoxName).clear(),
+      Hive.box<Employee>(_employeesBoxName).clear(),
+      Hive.box(_metaBoxName).clear(),
     ]);
-  }
-
-  // ── Private Helpers ────────────────────────────────────────────────────────
-
-  Map<String, int> _parseLastIds(String? raw) {
-    if (raw == null) {
-      return {'roomId': 0, 'guestId': 0, 'reservationId': 0, 'employeeId': 0};
-    }
-    return Map<String, int>.from(json.decode(raw));
-  }
-
-  List<T> _parseList<T>(String? raw, T Function(Map<String, dynamic>) fromJson) {
-    if (raw == null || raw.isEmpty) return [];
-    final List<dynamic> list = json.decode(raw);
-    final result = <T>[];
-    for (final item in list) {
-      try {
-        result.add(fromJson(item as Map<String, dynamic>));
-      } catch (e) {
-        print('Parse error for ${T.toString()}: $e');
-      }
-    }
-    return result;
   }
 }
 

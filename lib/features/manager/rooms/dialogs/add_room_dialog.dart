@@ -3,9 +3,9 @@
 // Dialog for adding a new room. Extracted from all_rooms_screen.dart.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
-import '../../../../providers/room_provider.dart';
+import '../../../../features/rooms/cubit/room_cubit.dart';
 
 class AddRoomDialog extends StatefulWidget {
   const AddRoomDialog({super.key});
@@ -152,15 +152,18 @@ class _AddRoomDialogState extends State<AddRoomDialog> {
     }
 
     // Check for duplicate room number
-    final exists = context.read<RoomProvider>().allRooms
+    final exists = context.read<RoomCubit>().allRooms
         .any((r) => r.number == number);
     if (exists) {
       _showSnack('Room number $number already exists');
       return;
     }
 
-    context.read<RoomProvider>().addRoom(
-          number, _selectedViewType!, _selectedCapacity!, price,
+    context.read<RoomCubit>().addRoom(
+          number: number,
+          viewType: _selectedViewType!,
+          capacity: _selectedCapacity!,
+          pricePerNight: price,
           amenities: _selectedAmenities,
         );
 
@@ -178,3 +181,4 @@ class _AddRoomDialogState extends State<AddRoomDialog> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 }
+

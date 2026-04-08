@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/guest.dart';
 import '../../models/room.dart';
-import '../../providers/reservation_provider.dart';
-import '../../providers/room_provider.dart';
+import '../../features/reservations/cubit/reservation_cubit.dart';
+import '../../features/rooms/cubit/room_cubit.dart';
 import '../../services/hotel_service.dart';
 import 'add_guest_dialog.dart';
 import 'date_range_dialog.dart';
@@ -54,7 +54,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   }
 
   void _calculateRoomPrices() {
-    final rooms = context.read<RoomProvider>().allRooms;
+    final rooms = context.read<RoomCubit>().allRooms;
     if (rooms.isNotEmpty) {
       double maxPrice = rooms.map((r) => r.pricePerNight).reduce((a, b) => a > b ? a : b);
       double minPrice = rooms.map((r) => r.pricePerNight).reduce((a, b) => a < b ? a : b);
@@ -157,7 +157,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   }
 
   void _showAdvancedFilterOptions(BuildContext context) {
-    final rooms = context.read<RoomProvider>().allRooms;
+    final rooms = context.read<RoomCubit>().allRooms;
     final viewTypes = ['All', ...rooms.map((r) => r.viewType).toSet()];
     final capacities = ['All', ...rooms.map((r) => r.capacity).toSet()];
 
@@ -255,7 +255,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     if (guest == null) return;
 
     try {
-      await context.read<ReservationProvider>().reserve(
+      await context.read<ReservationCubit>().reserve(
         guest.id,
         room.id,
         checkIn,
@@ -296,7 +296,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final rooms = context.watch<RoomProvider>().availableRooms;
+    final rooms = context.watch<RoomCubit>().availableRooms;
     List<Room> filteredRooms = _applyFilters(rooms);
 
     return Scaffold(
@@ -448,3 +448,4 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     );
   }
 }
+

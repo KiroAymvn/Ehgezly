@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/guest.dart';
 import '../../models/room.dart';
-import '../../providers/reservation_provider.dart';
+import '../../features/reservations/cubit/reservation_cubit.dart';
 import 'add_guest_dialog.dart';
 import 'date_range_dialog.dart';
 
@@ -392,7 +392,7 @@ class _RoomDetailsSheetState extends State<RoomDetailsSheet> {
     if (guest == null) return;
 
     try {
-      await context.read<ReservationProvider>().reserve(
+      await context.read<ReservationCubit>().reserve(
         guest.id,
         room.id,
         checkIn,

@@ -1,29 +1,47 @@
 // models/guest.dart
-class Guest {
+//
+// Guest entity with Hive TypeAdapter support.
+// TypeId = 1 — must be unique across all Hive models.
+
+import 'package:hive/hive.dart';
+
+part 'guest.g.dart';
+
+@HiveType(typeId: 1)
+class Guest extends HiveObject {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final String phone;
+
+  @HiveField(3)
   final String email;
-  final DateTime? birthday; // Add nullable birthday field
+
+  @HiveField(4)
+  final DateTime? birthday;
 
   Guest({
     required this.id,
     required this.name,
     required this.phone,
     this.email = '',
-    this.birthday, // Add to constructor
+    this.birthday,
   });
 
-  // Convert to JSON
+  // Converts this guest to a JSON-compatible map
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
     'phone': phone,
     'email': email,
-    'birthday': birthday?.toIso8601String(), // Handle null
+    'birthday': birthday?.toIso8601String(),
   };
 
-  // Create from JSON
+  // Creates a Guest from a JSON map
   factory Guest.fromJson(Map<String, dynamic> json) {
     return Guest(
       id: json['id'],
@@ -31,26 +49,26 @@ class Guest {
       phone: json['phone'],
       email: json['email'] ?? '',
       birthday: json['birthday'] != null
-          ? DateTime.tryParse(json['birthday']) // Use tryParse for safety
+          ? DateTime.tryParse(json['birthday'])
           : null,
     );
   }
 
-  // Helper method to format birthday
+  // Returns the birthday formatted as dd/mm/yyyy or null if not set
   String? get formattedBirthday {
     if (birthday == null) return null;
     return '${birthday!.day}/${birthday!.month}/${birthday!.year}';
   }
 
-  // Helper method to calculate age
+  // Calculates the guest's current age from their birthday
   int? get age {
     if (birthday == null) return null;
     final now = DateTime.now();
-    int age = now.year - birthday!.year;
+    int years = now.year - birthday!.year;
     if (now.month < birthday!.month ||
         (now.month == birthday!.month && now.day < birthday!.day)) {
-      age--;
+      years--;
     }
-    return age;
+    return years;
   }
 }

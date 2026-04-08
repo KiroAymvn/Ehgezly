@@ -3,10 +3,10 @@
 // Dialog for editing an existing room. Extracted from all_rooms_screen.dart.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../models/room.dart';
-import '../../../../providers/room_provider.dart';
+import '../../../../features/rooms/cubit/room_cubit.dart';
 
 class EditRoomDialog extends StatefulWidget {
   final Room room;
@@ -165,12 +165,12 @@ class _EditRoomDialogState extends State<EditRoomDialog> {
 
     // Duplicate number check (excluding current room)
     final exists = context
-        .read<RoomProvider>()
+        .read<RoomCubit>()
         .allRooms
         .any((r) => r.number == number && r.id != widget.room.id);
     if (exists) { _showSnack('Room number $number already exists'); return; }
 
-    context.read<RoomProvider>().updateRoom(
+    context.read<RoomCubit>().updateRoom(
           roomId: widget.room.id,
           number: number,
           viewType: _selectedViewType!,
@@ -192,3 +192,4 @@ class _EditRoomDialogState extends State<EditRoomDialog> {
   void _showSnack(String msg) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 }
+

@@ -1,10 +1,10 @@
 // screens/manager/edit_guest_dialog.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';  // Add this import
 
 import '../../models/guest.dart';
-import '../../providers/guest_provider.dart';
+import '../../features/guests/cubit/guest_cubit.dart';
 
 class EditGuestDialog extends StatefulWidget {
   final Guest guest;
@@ -201,7 +201,7 @@ class _EditGuestDialogState extends State<EditGuestDialog> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      context.read<GuestProvider>().updateGuest(
+      context.read<GuestCubit>().updateGuest(
         guestId: widget.guest.id,
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),

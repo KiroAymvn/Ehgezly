@@ -1,8 +1,8 @@
 // screens/manager/edit_employee_dialog.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/employee.dart';
-import '../../providers/employee_provider.dart';
+import '../../features/employees/cubit/employee_cubit.dart';
 
 class EditEmployeeDialog extends StatefulWidget {
   final Employee employee;
@@ -50,9 +50,9 @@ class _EditEmployeeDialogState extends State<EditEmployeeDialog> {
   Future<void> _updateEmployee() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final employeeProvider = context.read<EmployeeProvider>();
+        final cubit = context.read<EmployeeCubit>();
 
-        await employeeProvider.updateEmployee(
+        await cubit.updateEmployee(
           employeeId: widget.employee.id,
           firstName: _firstNameController.text.trim(),
           secondName: _secondNameController.text.trim(),

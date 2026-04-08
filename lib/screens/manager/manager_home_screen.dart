@@ -5,13 +5,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/utils/status_helpers.dart';
-import '../../providers/employee_provider.dart';
-import '../../providers/guest_provider.dart';
-import '../../providers/reservation_provider.dart';
-import '../../providers/room_provider.dart';
+import '../../features/employees/cubit/employee_cubit.dart';
+import '../../features/employees/cubit/employee_state.dart';
+import '../../features/guests/cubit/guest_cubit.dart';
+import '../../features/guests/cubit/guest_state.dart';
+import '../../features/reservations/cubit/reservation_cubit.dart';
+import '../../features/reservations/cubit/reservation_state.dart';
+import '../../features/rooms/cubit/room_cubit.dart';
+import '../../features/rooms/cubit/room_state.dart';
+import '../../models/reservation.dart';
 import '../../services/hotel_service.dart';
 import 'add_guest_simple_dialog.dart';
 import 'dashboard_card.dart';
@@ -21,10 +26,15 @@ class ManagerHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rooms        = context.watch<RoomProvider>().allRooms;
-    final guests       = context.watch<GuestProvider>().allGuests;
-    final reservations = context.watch<ReservationProvider>().allReservations;
-    final employees    = context.watch<EmployeeProvider>().allEmployees;
+    final roomState = context.watch<RoomCubit>().state;
+    final guestState = context.watch<GuestCubit>().state;
+    final resState = context.watch<ReservationCubit>().state;
+    final empState = context.watch<EmployeeCubit>().state;
+
+    final rooms        = roomState is RoomLoaded ? roomState.rooms : [];
+    final guests       = guestState is GuestLoaded ? guestState.guests : [];
+    final reservations = resState is ReservationLoaded ? resState.reservations : [];
+    final employees    = empState is EmployeeLoaded ? empState.employees : [];
     final revenue      = HotelService().calculateExpectedRevenue();
 
     final cards = [
@@ -191,7 +201,8 @@ class _RecentActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reservations = context.watch<ReservationProvider>().allReservations;
+    final resState = context.watch<ReservationCubit>().state;
+    final reservations = resState is ReservationLoaded ? resState.reservations : <Reservation>[];
     final service = HotelService();
     final recent = reservations.length > 3 ? reservations.sublist(0, 3) : reservations;
 
