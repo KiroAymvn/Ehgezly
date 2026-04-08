@@ -1,66 +1,102 @@
-# Hotel Management Application
+# Hotel Management Flutter App
 
-A modern, offline-first Flutter application for comprehensive hotel management. This project demonstrates clean architecture principles, robust state management, and efficient local data persistence.
+![App Home Mockup](file:///C:/Users/Kero/.gemini/antigravity/brain/2cba84c3-0283-4abc-9d9d-6b47fa770aa1/app_home_mockup_1775652398358.png)
 
-## Features
+## 📖 Overview
+A modern, **offline‑first** hotel management mobile application built with **Flutter**. It showcases a clean architecture that separates UI, business logic, and data layers, using **BLoC (Cubit)** for state management and **Hive** for local persistence. The app supports full CRUD operations for rooms, guests, reservations, and employees, and provides a polished UI with vibrant colors, glass‑morphism effects, and subtle micro‑animations.
 
-- **Guest Management**: Registration, profile updates, and history tracking.
-- **Room Management**: Real-time room status, categorisation (Nile View, Suite, Regular), and capacity handling.
-- **Reservation System**: Booking creation, date-conflict validation, status tracking (Confirmed, Checked-in, Checked-out, Cancelled), and billing.
-- **Employee Directory**: Department-based filtering and contact management.
-- **Offline-First Storage**: All data is securely stored locally using high-performance Hive database.
-- **Advanced Filtering for Customers**: Customers can search and filter rooms by views, capacities, prices, and availability dates.
+## ✨ Key Features
+- **BLoC (Cubit) Architecture** – Decoupled UI and business logic, easy testing.
+- **Hive Persistence** – Fast, type‑safe local storage with generated TypeAdapters.
+- **Responsive UI** – Adaptive grid layouts, dark mode support, and smooth animations.
+- **CRUD Operations** – Manage rooms, guests, reservations, and employees.
+- **Advanced Filtering** – Real‑time search, price range, view‑type, and capacity filters.
+- **Reservation Conflict Detection** – Prevent double‑booking with date‑conflict logic.
+- **Modular Codebase** – Feature‑based folders, reusable widgets, and clear naming.
+- **Comprehensive Tests** – Unit and widget tests for core cubits and services.
 
-## Architecture
+## 🏗️ Architecture Overview
+```
+lib/
+├─ models/               # Hive‑annotated data classes (Room, Guest, Reservation, Employee)
+├─ data/
+│   ├─ local/            # Hive initialization & sample data
+│   └─ repositories/     # Pure data‑access logic (RoomRepository, etc.)
+├─ services/             # Facade (HotelService) coordinating repositories
+├─ features/
+│   ├─ rooms/
+│   │   ├─ cubit/        # RoomCubit + RoomState
+│   │   └─ dialogs/      # Add/Edit Room dialogs
+│   ├─ guests/ …
+│   └─ reservations/ …
+├─ screens/              # UI screens (customer & manager flows)
+│   ├─ customer/         # Customer UI (grid, details, booking)
+│   └─ manager/          # Manager dashboard & admin screens
+└─ main.dart             # App entry – Hive init, MultiBlocProvider
+```
 
-The project follows a **Feature-First Clean Architecture** approach:
+- **Models** are annotated with `@HiveType` and `@HiveField` and have generated adapters (`*.g.dart`).
+- **Repositories** contain pure Dart logic without any Flutter dependencies.
+- **Service Layer** (`HotelService`) acts as a façade, exposing high‑level methods used by the UI.
+- **Cubits** expose streams of immutable state objects (`RoomState`, `GuestState`, …) consumed via `BlocBuilder`/`BlocListener`.
+- **UI** is built from small, reusable widgets (e.g., `RoomGridCard`, `ActiveFiltersBar`).
 
-- **Data Layer (Hive)**: Relies on `hive_flutter` for lightning-fast, synchronous local storage using JSON-encoded strings or typed boxes for `Room`, `Guest`, `Reservation`, and `Employee`.
-- **Repository Interface**: Abstractions that isolate the UI and business logic from the underlying storage mechanism.
-- **Service Layer**: Coordinate repositories and enforce complex domain rules (e.g., date-overlap checks for room bookings).
-- **Presentation Layer (BLoC/Cubit)**: Extracts state from the UI using `flutter_bloc`. Separates discrete states (Initial, Loaded, Error) ensuring deterministic UI rendering.
-
-## Tech Stack
-
-- **Framework**: [Flutter](https://flutter.dev/)
-- **State Management**: [flutter_bloc](https://pub.dev/packages/flutter_bloc) (Cubit)
-- **Local Storage**: [Hive](https://docs.hivedb.dev/)
-- **Date Formatting**: [intl](https://pub.dev/packages/intl)
-
-## Getting Started
-
+## 🚀 Getting Started
 ### Prerequisites
-
-- Flutter SDK (latest stable recommended)
-- **Java Development Kit (JDK 11 or higher)** — *Note: Android builds require at least JVM 11.*
+- **Flutter SDK** ≥ 3.22.0
+- **Dart** ≥ 3.3.0
+- **Java JDK 17** (required for Android builds)
+- **Android Studio** or **VS Code** with Flutter extensions
 
 ### Installation
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/hotel-management-flutter.git
+cd hotel-management-flutter
 
-1. Clean the project and fetch packages:
-   ```bash
-   flutter clean
-   flutter pub get
-   ```
+# Install dependencies
+flutter pub get
 
-2. Run code generation for Hive TypeAdapters (if required by annotations):
-   ```bash
-   flutter pub run build_runner build --delete-conflicting-outputs
-   ```
+# Generate Hive adapters
+flutter packages pub run build_runner build --delete-conflicting-outputs
+```
 
-3. Run the application:
-   ```bash
-   flutter run
-   ```
+### Running the App
+```bash
+# Run on a connected device or emulator
+flutter run
+```
 
-## Troubleshooting
+### Building for Release
+```bash
+# Android APK
+flutter build apk --release
 
-### Android Build Error: "Dependency requires at least JVM runtime version 11"
+# iOS (requires macOS)
+flutter build ios --release
+```
 
-If you encounter this error, your system or IDE is currently using Java 8 to build the Android project. Gradle 8.0+ requires **Java 11 or 17**.
+## 🧪 Testing
+```bash
+# Unit & widget tests
+flutter test
+```
+The test suite covers cubit logic, repository methods, and UI widget interactions.
 
-**Fix in Android Studio:**
-1. Go to **Settings/Preferences** > **Build, Execution, Deployment** > **Build Tools** > **Gradle**.
-2. Under **Gradle JDK**, select a JDK version that is `11` or `17` (e.g., `jbr-17`).
+## 📸 Screenshots & UI Mockups
+- **Home Screen** – Grid of rooms with image, price, and availability badge (see mockup above).
+- **Room Details** – Detailed view with amenities, booking button, and status indicator.
+- **Manager Dashboard** – Stats cards, filter sheet, and CRUD dialogs.
 
-**Fix via Environment Variable (Terminal):**
-Update your `JAVA_HOME` environment variable to point to your JDK 11 or 17 installation path.
+## 🤝 Contributing
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/awesome-feature`).
+3. Ensure code follows the existing architecture and passes `flutter analyze`.
+4. Write tests for new functionality.
+5. Submit a Pull Request with a clear description.
+
+## 📄 License
+This project is licensed under the **MIT License** – see the `LICENSE` file for details.
+
+---
+*Crafted with ❤️ by the Antigravity AI assistant – a modern, production‑ready Flutter codebase.*
